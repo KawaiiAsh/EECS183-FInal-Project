@@ -12,6 +12,7 @@
 
 
 #include "Floor.h"
+#include <algorithm>
 
 using namespace std;
 
@@ -43,38 +44,20 @@ void Floor::addPerson(Person newPerson, int request) {
 }
 
 void Floor::removePeople(const int indicesToRemove[MAX_PEOPLE_PER_FLOOR], int numPeopleToRemove) {
-    // bubble sort
-    for (int i = 0; i < numPeopleToRemove - 1; i++) {
-        for (int j = 0; j < numPeopleToRemove - i - 1; j++) {
-            if (indicesToRemove[j] > indicesToRemove[j + 1]) {
-                int temp = indicesToRemove[j];
-                indicesToRemove[j] = indicesToRemove[j + 1];
-                indicesToRemove[j + 1] = temp;
-            }
+    int sortedIndices[MAX_PEOPLE_PER_FLOOR];
+    copy(indicesToRemove, indicesToRemove + numPeopleToRemove, sortedIndices);
+    sort(sortedIndices, sortedIndices + numPeopleToRemove);
+    
+    for (int i = numPeopleToRemove - 1; i >= 0; i--) {
+        int indexToRemove = sortedIndices[i];
+        for (int j = indexToRemove; j < numPeople - 1; j++) {
+            people[j] = people[j + 1];
         }
+        numPeople--;
     }
-
-    // remove people
-    int writeIndex = 0;
-    for (int i = 0; i < numPeople; ++i) {
-        bool shouldRemove = false;
-        for (int j = 0; j < numPeopleToRemove; ++j) {
-            if (i == indicesToRemove[j]) {
-                shouldRemove = true;
-                break;
-            }
-        }
-        if (!shouldRemove) {
-            if (writeIndex != i) {
-                people[writeIndex] = people[i];
-            }
-            ++writeIndex;
-        }
-    }
-    numPeople = writeIndex;
-
     resetRequests();
 }
+
 
 void Floor::resetRequests() {
     hasUpRequest = false;
