@@ -18,41 +18,24 @@
 using namespace std;
 
 Person::Person(string inputString) : Person() {
-    if (inputString.size() >= 8) {
-        if (inputString[1] != 'f') {
-            int i = inputString[0] - '0';
-            int j = inputString[1] - '0';
-            turn = 10 * i + j;
-            currentFloor = inputString[3] - '0';
-            targetFloor = inputString[5] - '0';
-            angerLevel = inputString[7] - '0';
-        } else {
-            stringstream ss(inputString);
-            ss >> turn;
-            char floorLetter;
-            ss >> floorLetter;
-            ss >> currentFloor;
-            char target;
-            ss >> target;
-            ss >> targetFloor;
-            char anger;
-            ss >> anger;
-            ss >> angerLevel;
-        }
-    } else {
-        turn = 0;
-        currentFloor = 0;
-        targetFloor = 0;
-        angerLevel = 0;
-    }
+    stringstream ss(inputString);
+    char junk;
+    ss >> turn;
+    ss >> junk; // Discard character
+    ss >> currentFloor;
+    ss >> junk; // Discard character
+    ss >> targetFloor;
+    ss >> junk; // Discard character
+    ss >> angerLevel;
 }
 
 bool Person::tick(int currentTime) {
-    if (currentTime % TICKS_PER_ANGER_INCREASE == 0){
+    if (currentTime % TICKS_PER_ANGER_INCREASE == 0) {
         angerLevel++;
-    } if (angerLevel >= MAX_ANGER){
+    }
+    if (angerLevel >= MAX_ANGER) {
         return true;
-    } else{
+    } else {
         return false;
     }
 }

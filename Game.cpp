@@ -9,35 +9,49 @@
  *
  * Final Project - Elevators
  */
- 
+
 #include <random>
 #include <sstream>
 #include "Game.h"
 #include "AI.h"
 #include "Utility.h"
+
 using namespace std;
 
 // Stub for playGame for Core, which plays random games
 // You *must* revise this function according to the RME and spec
-void Game::playGame(bool isAIModeIn, ifstream& gameFile) {
-    std::mt19937 gen(1);
-    std::uniform_int_distribution<> floorDist(0, 9);
-    std::uniform_int_distribution<> angerDist(0, 3);
+void Game::playGame(bool isAIModeIn, ifstream &gameFile) {
+    if (!gameFile.is_open()) {
+        exit(1);
+    }
 
     isAIMode = isAIModeIn;
     printGameStartPrompt();
     initGame(gameFile);
 
-    while (true) {
-        int src = floorDist(gen);
-        int dst = floorDist(gen);
-        if (src != dst) {
-            std::stringstream ss;
-            ss << "0f" << src << "t" << dst << "a" << angerDist(gen);
-            Person p(ss.str());
-            building.spawnPerson(p);
+    string personString;
+    Person p;
+
+    while (gameFile >> personString) {
+        p = Person(personString);
+        int personTick = p.getTurn();
+
+        // Wait until it's time for the person to appear
+        while (personTick > building.getTime()) {
+            building.prettyPrintBuilding(cout);
+            satisfactionIndex.printSatisfaction(cout, false);
+            checkForGameEnd();
+
+            Move nextMove = getMove();
+            update(nextMove);
         }
 
+        // Spawn the person
+        building.spawnPerson(p);
+    }
+
+    // Main game loop
+    while (true) {
         building.prettyPrintBuilding(cout);
         satisfactionIndex.printSatisfaction(cout, false);
         checkForGameEnd();
@@ -49,7 +63,7 @@ void Game::playGame(bool isAIModeIn, ifstream& gameFile) {
 
 // Stub for isValidPickupList for Core
 // You *must* revise this function according to the RME and spec
-bool Game::isValidPickupList(const string& pickupList, const int pickupFloorNum) const {
+bool Game::isValidPickupList(const string &pickupList, const int pickupFloorNum) const {
     int numPeople = building.getFloorByFloorNum(pickupFloorNum).getNumPeople();
 
     if (pickupList.size() > ELEVATOR_CAPACITY) {
@@ -95,55 +109,43 @@ bool Game::isValidPickupList(const string& pickupList, const int pickupFloorNum)
 ////// DO NOT MODIFY ANY CODE BENEATH THIS LINE //////
 //////////////////////////////////////////////////////
 
-bool Game::performMove(Move& move) const
-{
+bool Game::performMove(Move &move) const {
     Elevator elevators[NUM_ELEVATORS];
 
-    for (int i = 0; i < NUM_ELEVATORS; ++i)
-    {
+    for (int i = 0; i < NUM_ELEVATORS; ++i) {
         elevators[i] = building.getElevatorById(i);
     }
 
-    if (move.isValidMove(elevators) && move.isPickupMove())
-    {
+    if (move.isValidMove(elevators) && move.isPickupMove()) {
 
         Elevator taggedElevator = building.getElevatorById(move.getElevatorId());
         Floor taggedFloor = building.getFloorByFloorNum(taggedElevator.getCurrentFloor());
 
-        if (taggedFloor.getNumPeople() > 0)
-        {
+        if (taggedFloor.getNumPeople() > 0) {
             getPeopleToPickup(move);
             return true;
         }
 
         return false;
-    }
-    else if (move.isSaveMove())
-    {
+    } else if (move.isSaveMove()) {
         performSave();
-    }
-    else if (move.isQuitMove())
-    {
+    } else if (move.isQuitMove()) {
         performQuit();
-    }
-    else if (!move.isValidMove(elevators))
-    {
+    } else if (!move.isValidMove(elevators)) {
         return false;
     }
 
     return true;
 }
 
-void Game::printWelcomeMenu() const
-{
+void Game::printWelcomeMenu() const {
     cout << "########################################" << endl;
     cout << "# Welcome to EECS 183 Elevator Escape! #" << endl;
     cout << "########################################" << endl
-        << endl;
+         << endl;
 }
 
-void Game::printIntroMenu() const
-{
+void Game::printIntroMenu() const {
     cout << "[0] Run Tests" << endl;
     cout << "[1] Load saved game" << endl;
     cout << "[2] Start new game" << endl;
@@ -156,8 +158,7 @@ void Game::printAIMenu() const {
     cout << "Choice: ";
 }
 
-void Game::printOptions() const
-{
+void Game::printOptions() const {
     cout << "########################################" << endl;
     cout << "#         Enter service move:          #" << endl;
     cout << "#     'e' elevatorId 'f' floorNum      #" << endl;
@@ -166,8 +167,7 @@ void Game::printOptions() const
     cout << "########################################" << endl;
 }
 
-void Game::printGameStartPrompt() const
-{
+void Game::printGameStartPrompt() const {
     cout << endl;
     cout << "########################################" << endl;
     cout << "#                 Enter:               #" << endl;
@@ -191,18 +191,16 @@ IntroChoice Game::getIntroChoice() const {
 
     int choice = -1;
 
-    while ((choice < 0) || (choice > 2))
-    {
+    while ((choice < 0) || (choice > 2)) {
         printIntroMenu();
         string s_choice;
         getline(cin, s_choice);
         choice = stoi(s_choice);
 
-        if ((choice < 0) || (choice > 2))
-        {
+        if ((choice < 0) || (choice > 2)) {
             cout << endl
-                << "Invalid menu choice!" << endl
-                << endl;
+                 << "Invalid menu choice!" << endl
+                 << endl;
         }
     }
 
@@ -232,22 +230,19 @@ AIChoice Game::getAIChoice() const {
     return static_cast<AIChoice>(choice);
 }
 
-void Game::printSatisfactionIndex() const
-{
+void Game::printSatisfactionIndex() const {
     cout << endl
-        << endl;
+         << endl;
     cout << "Your hotel's current satisfaction index is: " << satisfactionIndex;
     cout << endl
-        << endl;
+         << endl;
 }
 
-void Game::getPeopleToPickup(Move& move) const
-{
+void Game::getPeopleToPickup(Move &move) const {
     int currentFloorNum = building.getElevatorById(move.getElevatorId()).getCurrentFloor();
     Floor currentFloor = building.getFloorByFloorNum(currentFloorNum);
 
-    if (currentFloor.getNumPeople() == 1)
-    {
+    if (currentFloor.getNumPeople() == 1) {
         move.setPeopleToPickup("0", currentFloorNum, currentFloor);
         return;
     }
@@ -255,8 +250,7 @@ void Game::getPeopleToPickup(Move& move) const
     string peopleIndices = "";
     bool isValidPickup = false;
 
-    while (!isValidPickup)
-    {
+    while (!isValidPickup) {
 
         currentFloor.printFloorPickupMenu(cout);
         cout << endl;
@@ -273,8 +267,7 @@ void Game::getPeopleToPickup(Move& move) const
 
         isValidPickup = isValidPickupList(peopleIndices, currentFloorNum);
 
-        if (!isValidPickup)
-        {
+        if (!isValidPickup) {
             cout << "Invalid list of people chosen!" << endl;
             checkForGameEnd();
         }
@@ -283,15 +276,13 @@ void Game::getPeopleToPickup(Move& move) const
     move.setPeopleToPickup(peopleIndices, currentFloorNum, currentFloor);
 }
 
-Move Game::getMove() const
-{
+Move Game::getMove() const {
     Move moveObj;
     string moveString = "";
     bool isValid = false;
     GameChoice choiceCapture = GameChoice::Invalid;
 
-    do
-    {
+    do {
         cout << "Enter move: ";
 
         getline(cin, moveString);
@@ -304,28 +295,26 @@ Move Game::getMove() const
         moveObj = Move(moveString);
         choiceCapture = static_cast<GameChoice>(moveString[0]);
 
-        switch (choiceCapture)
-        {
-        case GameChoice::Quit:
-            performQuit();
-            break;
-        case GameChoice::Save:
-            isValid = performSave();
-            break;
-        case GameChoice::Pass:
-        case GameChoice::Move:
-            isValid = performMove(moveObj);
-            break;
-        default:
-            isValid = false;
-            break;
+        switch (choiceCapture) {
+            case GameChoice::Quit:
+                performQuit();
+                break;
+            case GameChoice::Save:
+                isValid = performSave();
+                break;
+            case GameChoice::Pass:
+            case GameChoice::Move:
+                isValid = performMove(moveObj);
+                break;
+            default:
+                isValid = false;
+                break;
         }
 
-        if (!isValid)
-        {
+        if (!isValid) {
             cout << endl
-                << "Invalid move!" << endl
-                << endl;
+                 << "Invalid move!" << endl
+                 << endl;
             checkForGameEnd();
         }
 
@@ -334,35 +323,30 @@ Move Game::getMove() const
     return moveObj;
 }
 
-void Game::performQuit() const
-{
+void Game::performQuit() const {
     QuitChoice quitChoice = static_cast<QuitChoice>(getExitChoice());
-    switch (quitChoice)
-    {
-    case QuitChoice::Quit:
-        endGame();
-        break;
-    case QuitChoice::Stay:
-        return;
-        break;
+    switch (quitChoice) {
+        case QuitChoice::Quit:
+            endGame();
+            break;
+        case QuitChoice::Stay:
+            return;
+            break;
     }
 }
 
-bool Game::performSave() const
-{
+bool Game::performSave() const {
     ofstream saveFile(LOAD_FILENAME);
-    if (!saveFile.is_open())
-    {
+    if (!saveFile.is_open()) {
         cout << "Could not open " << LOAD_FILENAME << endl;
         return false;
     }
     return saveGame(saveFile);
 }
 
-void Game::initGame(ifstream& loadFile)
-{
+void Game::initGame(ifstream &loadFile) {
     cout << endl
-        << "Loading game..." << endl;
+         << "Loading game..." << endl;
 
     loadFile >> satisfactionIndex;
 
@@ -377,16 +361,15 @@ void Game::initGame(ifstream& loadFile)
         building.setElevator(elvState, i);
         i++;
     }
-    
+
     if (!loadFile.fail()) {
         cout << "Loaded!" << endl << endl;
-    }
-    else {
+    } else {
         cout << endl << "Error when loading the file! "
-            << "Verify that you have correctly created your project."
-            << endl << endl;
+             << "Verify that you have correctly created your project."
+             << endl << endl;
         cout << "You will need to fix this before implementing Game::playGame "
-            << "or the Reach AI." << endl << endl;
+             << "or the Reach AI." << endl << endl;
         cout << "Press enter to continue....";
         string junk;
         getline(cin, junk);
@@ -395,8 +378,7 @@ void Game::initGame(ifstream& loadFile)
     return;
 }
 
-void Game::printExitMenu() const
-{
+void Game::printExitMenu() const {
     cout << endl;
     cout << "Are you sure you want to quit?" << endl;
     cout << "[1] Yes, I'm sure!" << endl;
@@ -404,23 +386,20 @@ void Game::printExitMenu() const
     cout << "Choice: ";
 }
 
-int Game::getExitChoice() const
-{
+int Game::getExitChoice() const {
     int exitChoice = 0;
 
-    while ((exitChoice < 1) || (exitChoice > 2))
-    {
+    while ((exitChoice < 1) || (exitChoice > 2)) {
         printExitMenu();
 
         string choice = "";
         getline(cin, choice);
         exitChoice = stoi(choice);
 
-        if ((exitChoice < 1) || (exitChoice > 2))
-        {
+        if ((exitChoice < 1) || (exitChoice > 2)) {
             cout << endl
-                << "Invalid menu choice!" << endl
-                << endl;
+                 << "Invalid menu choice!" << endl
+                 << endl;
         }
     }
     cout << endl;
@@ -428,64 +407,54 @@ int Game::getExitChoice() const
     return exitChoice;
 }
 
-void Game::endGame() const
-{
+void Game::endGame() const {
     cout << endl
-        << "Goodbye!" << endl;
+         << "Goodbye!" << endl;
     satisfactionIndex.save();
     exit(0);
 }
 
-void Game::printSuccessEnding() const
-{
+void Game::printSuccessEnding() const {
     cout << endl
-        << endl;
+         << endl;
     cout << "Time is up! Your final score is: " << endl;
     satisfactionIndex.printSatisfaction(cout);
 }
 
-void Game::printFailureEnding() const
-{
+void Game::printFailureEnding() const {
     cout << endl
-        << endl;
+         << endl;
     cout << "Uh oh! Your hotel has gone out of business!" << endl;
     cout << "Better luck next time!" << endl
-        << endl;
+         << endl;
     cout << "Your final achievement:" << endl
-        << endl;
+         << endl;
     satisfactionIndex.printSatisfaction(cout);
 }
 
-void Game::checkForGameEnd() const
-{
-    if (building.getTime() >= MAX_TURNS)
-    {
+void Game::checkForGameEnd() const {
+    if (building.getTime() >= MAX_TURNS) {
         printSuccessEnding();
         endGame();
-    }
-    else if (satisfactionIndex.getSatisfaction() < 0)
-    {
+    } else if (satisfactionIndex.getSatisfaction() < 0) {
         printFailureEnding();
         endGame();
     }
 }
 
-void Game::update(const Move& m)
-{
-    if (m.isPickupMove())
-    {
+void Game::update(const Move &m) {
+    if (m.isPickupMove()) {
         satisfactionIndex.updateSumDirectionRequest(m, building);
     }
     satisfactionIndex.updateSumExploded(building.tick(m));
     satisfactionIndex.updateTimeReached(building);
-    if (building.getTime() % 2)
-    {
+    if (building.getTime() % 2) {
         satisfactionIndex.updateSumIdle(building);
     }
 }
 
 // Stub for saveGame for project
 // You will *not* implement this function for the project
-bool Game::saveGame(ofstream& saveFile) const {
+bool Game::saveGame(ofstream &saveFile) const {
     return true;
 }
