@@ -40,8 +40,6 @@ Person::Person(string inputString) : Person() {
             ss >> angerLevel;
         }
     } else {
-        // Handle invalid input here, such as throwing an exception or setting default values.
-        // For simplicity, let's assume setting default values.
         turn = 0;
         currentFloor = 0;
         targetFloor = 0;
