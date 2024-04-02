@@ -1,0 +1,41 @@
+# C/C++相关的编译输出文件
+*.o
+*.out
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+
+# 编译生成的目录
+/build/
+/bin/
+/lib/
+/target/
+/.vscode/
+
+# CLion自动生成的文件和目录
+/.idea/
+/.idea/workspace.xml
+/.idea/modules.xml
+/.idea/*.iml
+/.idea/misc.xml
+/.idea/vcs.xml
+/.idea/jsLibraryMappings.xml
+
+# macOS系统上的隐藏文件
+.DS_Store
+
+# 编译器临时文件
+*.swp
+*~
+
+# CMake生成的目录
+/CMakeFiles/
+/cmake-build-*/
+
+# 编译器生成的Makefile
+Makefile
+
+# 编译器自动生成的Debug目录
+Debug/
