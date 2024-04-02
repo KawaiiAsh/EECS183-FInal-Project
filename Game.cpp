@@ -50,6 +50,44 @@ void Game::playGame(bool isAIModeIn, ifstream& gameFile) {
 // Stub for isValidPickupList for Core
 // You *must* revise this function according to the RME and spec
 bool Game::isValidPickupList(const string& pickupList, const int pickupFloorNum) const {
+    int numPeople = building.getFloorByFloorNum(pickupFloorNum).getNumPeople();
+
+    if (pickupList.size() > ELEVATOR_CAPACITY) {
+        return false;
+    }
+
+    int maxPersonIndex = -1;
+    bool isUp = false;
+
+    for (int i = 0; i < pickupList.size(); i++) {
+        int personIndex = pickupList[i] - '0';
+
+        if (personIndex < 0 || personIndex >= numPeople) {
+            return false;
+        }
+
+        if (personIndex > maxPersonIndex) {
+            maxPersonIndex = personIndex;
+        } else {
+            return false;
+        }
+
+        if (i == 0) {
+            int targetFloor0 = building.getFloorByFloorNum(pickupFloorNum)
+                    .getPersonByIndex(personIndex)
+                    .getTargetFloor();
+            isUp = (targetFloor0 > pickupFloorNum);
+        }
+
+        int current = building.getFloorByFloorNum(pickupFloorNum)
+                              .getPersonByIndex(personIndex)
+                              .getTargetFloor() - pickupFloorNum;
+        bool directionUp = (current > 0);
+
+        if (directionUp != isUp) {
+            return false;
+        }
+    }
     return true;
 }
 
