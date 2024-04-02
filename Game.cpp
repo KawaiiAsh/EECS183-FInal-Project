@@ -63,45 +63,69 @@ void Game::playGame(bool isAIModeIn, ifstream &gameFile) {
 
 // Stub for isValidPickupList for Core
 // You *must* revise this function according to the RME and spec
-bool Game::isValidPickupList(const string &pickupList, const int pickupFloorNum) const {
-    int numPeople = building.getFloorByFloorNum(pickupFloorNum).getNumPeople();
+bool Game::isValidPickupList(const string& pickupList, const int pickupFloorNum) const {
+    int numPeople = pickupList.length();
+    int max = 0;
+    int currentPersonIndex;
+    int personFloorTarget;
+    int personList[numPeople];
 
-    if (pickupList.size() > ELEVATOR_CAPACITY) {
+    for (int i = 0; i < numPeople; i++) {
+        personList[i] = pickupList[i] - '0';
+    }
+
+    for (int i = 0; i < numPeople; i++) {
+        for (int j = i + 1; j < numPeople; j++) {
+            if (personList[i] == personList[j]) {
+                return false;
+            }
+        }
+        if (!(personList[i] >= 0 && personList[i] <= 9)) {
+            return false;
+        }
+        if (personList[i] > max) {
+            max = personList[i];
+        }
+    }
+
+    if (max >= building.getFloorByFloorNum(pickupFloorNum).getNumPeople()) {
         return false;
     }
 
-    int maxPersonIndex = -1;
-    bool isUp = false;
+    if (!(numPeople <= ELEVATOR_CAPACITY)) {
+        return false;
+    }
 
-    for (int i = 0; i < pickupList.size(); i++) {
-        int personIndex = pickupList[i] - '0';
+    bool isDirectionUp;
 
-        if (personIndex < 0 || personIndex >= numPeople) {
-            return false;
-        }
+    currentPersonIndex = personList[0];
+    personFloorTarget = building.getFloorByFloorNum(pickupFloorNum)
+            .getPersonByIndex(currentPersonIndex)
+            .getTargetFloor();
 
-        if (personIndex > maxPersonIndex) {
-            maxPersonIndex = personIndex;
+    if (personFloorTarget > pickupFloorNum) {
+        isDirectionUp = true;
+    } else if (personFloorTarget < pickupFloorNum) {
+        isDirectionUp = false;
+    }
+
+    for (int i = 1; i < numPeople; i++) {
+        currentPersonIndex = personList[i];
+        if (isDirectionUp) {
+            if (building.getFloorByFloorNum(pickupFloorNum)
+                        .getPersonByIndex(currentPersonIndex)
+                        .getTargetFloor() < pickupFloorNum) {
+                return false;
+            }
         } else {
-            return false;
-        }
-
-        if (i == 0) {
-            int targetFloor0 = building.getFloorByFloorNum(pickupFloorNum)
-                    .getPersonByIndex(personIndex)
-                    .getTargetFloor();
-            isUp = (targetFloor0 > pickupFloorNum);
-        }
-
-        int current = building.getFloorByFloorNum(pickupFloorNum)
-                              .getPersonByIndex(personIndex)
-                              .getTargetFloor() - pickupFloorNum;
-        bool directionUp = (current > 0);
-
-        if (directionUp != isUp) {
-            return false;
+            if (building.getFloorByFloorNum(pickupFloorNum)
+                        .getPersonByIndex(currentPersonIndex)
+                        .getTargetFloor() > pickupFloorNum) {
+                return false;
+            }
         }
     }
+
     return true;
 }
 
