@@ -1,17 +1,3 @@
-/*
- * Copyright 2023 University of Michigan EECS183
- *
- * test.cpp
- * Project UID 28eb18c2c1ce490aada441e65559efdd
- *
- * Final Project - Elevators
- */
- 
-////////////////////////////////////////////////
-// You will submit test.cpp to the autograder //
-// FOR LAB 8, but NOT the final project Core  //
-////////////////////////////////////////////////
-
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -28,12 +14,9 @@
 
 using namespace std;
 
-// declare your test functions here
-
+// 这是一个简单的函数，它用于启动测试
 void start_tests() {
-    // call your test functions here
-    
+    // 这里是函数体，目前它没有实现任何功能，因此我们只是返回
     return;
 }
 
-// write test functions here

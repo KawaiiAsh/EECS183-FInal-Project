@@ -1,12 +1,3 @@
-/*
- * Copyright 2023 University of Michigan EECS183
- *
- * SatisfactionIndex.h
- * Project UID 28eb18c2c1ce490aada441e65559efdd
- *
- * Final Project - Elevators
- */
- 
 #ifndef _SATISFACTION_INDEX_H_
 #define _SATISFACTION_INDEX_H_
 
@@ -17,114 +8,40 @@
 #include "Building.h"
 #include "Move.h"
 
-/////////////////////////////////////////////////////
-//////// DO NOT MODIFY ANY CODE IN THIS FILE ////////
-/////////////////////////////////////////////////////
-
 class SatisfactionIndex {
 private:
-    
-    int sumIndex;
-    int sumUpRequest;
-    int sumDownRequest;
-    int sumExploded;
-    int sumIdle;
-    int timeReached;
-    
-public:
-    
-    /**
-     * Requires: nothing
-     * Modifies: sumIndex,
-     *           sumUpRequest,
-     *           sumDownRequest,
-     *           sumExploded,
-     *           sumIdle
-     * Effects:  sets all modified to be 0
-     */
-    SatisfactionIndex();
-    
-    /**
-     * Requires: nothing
-     * Modifies: nothing
-     * Effects:  returns sumIndex
-     */
-    int getSatisfaction() const;
-    
-    /**
-     * Requires: move and building are valid
-     * Modifies: sumUpRequest, sumDownRequest
-     * Effects:  if moves causes elevator to go down,
-     *               increments sumDownRequest
-     *           if moves causes elevator to go up,
-     *               increments sumUpRequest
-     */
-    void updateSumDirectionRequest(const Move&, const Building&);
 
-    /**
-     * Requires: nothing
-     * Modifies: sumIndex, sumExploded
-     * Effects:  increments sumExploded by num
-     *           increments sumIndex by num * POINTS_LOST_PER_EXPLOSION
-     */
-    void updateSumExploded(const int);
-    
-    /**
-     * Requires: building is valid
-     * Modifies: sumIdle
-     * Effects:  increments sumIdle by 1 for each idle elevator in building
-     */
-    void updateSumIdle(const Building&);
-    
-    /**
-     * Requires: building is valid
-     * Modifies: time
-     * Effects:  sets timeReached to current time of building
-     */
-    void updateTimeReached(const Building&);
-    
-    /**
-     * Requires: nothing
-     * Modifies: sumIndex,
-     *           sumUpRequest,
-     *           sumDownRequest,
-     *           sumExploded,
-     *           sumIdle
-     * Effects:  reads modified in order from ins
-     */
-    void readRawSatisfaction(istream& ins);
-    
-    /**
-     * Requires: nothing
-     * Modifies: nothing
-     * Effects:  prints sumIndex, sumUpRequest
-     *                  sumDownRequest, sumExploded
-     *                  sumIdle in order, separated
-     *                  by newline
-     */
-    void printRawSatisfaction(ostream& outs) const;
-    
-    /**
-     * Requires: nothing
-     * Modifies: nothing
-     * Effects:  prints sumIndex, sumUpRequest
-     *                  sumDownRequest, sumExploded
-     *                  sumIdle in order, separated
-     *                  by newline with header for display value
-     */
-    void printSatisfaction(ostream& outs, const bool isCSV = false) const;
-    
-    /**
-     * Requires: nothing
-     * Modifies: nothing
-     * Effects:  prints sumIndex, sumUpRequest
-     *                  sumDownRequest, sumExploded
-     *                  sumIdle in csv format to RESULT_FILENAME
-     */
-    void save() const;
+    int sumIndex;           // 总指数
+    int sumUpRequest;       // 向上请求总数
+    int sumDownRequest;     // 向下请求总数
+    int sumExploded;        // 爆炸总数
+    int sumIdle;            // 空闲总数
+    int timeReached;        // 达到时间
+
+public:
+
+    SatisfactionIndex();    // 构造函数
+
+    int getSatisfaction() const;    // 获取满意度
+
+    void updateSumDirectionRequest(const Move&, const Building&);    // 更新方向请求总数
+
+    void updateSumExploded(const int);    // 更新爆炸总数
+
+    void updateSumIdle(const Building&);    // 更新空闲总数
+
+    void updateTimeReached(const Building&);    // 更新达到时间
+
+    void readRawSatisfaction(istream& ins);    // 读取原始满意度
+
+    void printRawSatisfaction(ostream& outs) const;    // 打印原始满意度
+
+    void printSatisfaction(ostream& outs, const bool isCSV = false) const;    // 打印满意度
+
+    void save() const;    // 保存数据
 };
 
-ostream& operator<<(ostream& outs, const SatisfactionIndex& index);
-istream& operator>>(istream& ins, SatisfactionIndex& index);
+ostream& operator<<(ostream& outs, const SatisfactionIndex& index);    // 输出流运算符重载
+istream& operator>>(istream& ins, SatisfactionIndex& index);    // 输入流运算符重载
 
 #endif

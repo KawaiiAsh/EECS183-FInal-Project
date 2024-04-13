@@ -1,24 +1,15 @@
-/*
- * Copyright 2023 University of Michigan EECS183
- *
- * Move.cpp
- * Project UID 28eb18c2c1ce490aada441e65559efdd
- *
- * <#Names#>
- * <#Uniqnames#>
- *
- * Final Project - Elevators
- */
- 
 #include <cmath>
 #include <sstream>
-#include <stdio.h>      
+#include <stdio.h>
 #include <stdlib.h>
 #include "Move.h"
 
 using namespace std;
 
+// 根据命令字符串创建 Move 对象
 Move::Move(string commandString) : Move() {
+
+    // 空命令字符串
     if (commandString.empty()) {
         isPass = true;
         return;
@@ -43,8 +34,10 @@ Move::Move(string commandString) : Move() {
         else if (commandString.at(2) == 'f') {
             targetFloor = static_cast<int>(commandString.at(3)) - 48;
         }
-    }}
+    }
+}
 
+// 检查此 Move 实例是否有效
 bool Move::isValidMove(Elevator elevators[NUM_ELEVATORS]) const {
     if (isPassMove() || isQuitMove() || isSaveMove()) {
         return true;
@@ -66,18 +59,25 @@ bool Move::isValidMove(Elevator elevators[NUM_ELEVATORS]) const {
     }
 }
 
+
 void Move::setPeopleToPickup(const string& pickupList, const int currentFloor, const Floor& pickupFloor) {
+
+    // 设置要接送的人数为 0，总满意度为 0
+    // 将 pickupList 中指定的索引添加到 peopleToPickup
     numPeopleToPickup = 0;
     totalSatisfaction = 0;
     int maxFloorDiff = 0;
 
+    // 对于每个要接送的人，将 numPeopleToPickup 增加 1
     for (int i = 0; i < pickupList.length(); i++) {
         peopleToPickup[i] = static_cast<int>(pickupList.at(i)) - 48;
         numPeopleToPickup++;
 
+        // 将每个被接送的人的满意度添加到 totalSatisfaction 中
         Person p = pickupFloor.getPersonByIndex(peopleToPickup[i]);
         totalSatisfaction += (MAX_ANGER - p.getAngerLevel());
 
+        // 将 targetFloor 设置为被接送的人中最远的楼层（最高或最低的楼层）
         int floorDiff = abs(p.getTargetFloor() - currentFloor);
         if (floorDiff > maxFloorDiff) {
             maxFloorDiff = floorDiff;
@@ -87,7 +87,7 @@ void Move::setPeopleToPickup(const string& pickupList, const int currentFloor, c
 }
 
 //////////////////////////////////////////////////////
-////// DO NOT MODIFY ANY CODE BENEATH THIS LINE //////
+////// 下面的代码请勿修改 ////////////////////////////
 //////////////////////////////////////////////////////
 
 Move::Move() {
@@ -95,7 +95,7 @@ Move::Move() {
     targetFloor = -1;
     numPeopleToPickup = 0;
     totalSatisfaction = 0;
-	isPass = false;
+    isPass = false;
     isPickup = false;
     isSave = false;
     isQuit = false;
@@ -106,15 +106,15 @@ bool Move::isPickupMove() const {
 }
 
 bool Move::isPassMove() const {
-	return isPass;
+    return isPass;
 }
 
 bool Move::isSaveMove() const {
-	return isSave;
+    return isSave;
 }
 
 bool Move::isQuitMove() const {
-	return isQuit;
+    return isQuit;
 }
 
 int Move::getElevatorId() const {

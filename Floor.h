@@ -1,12 +1,3 @@
-/*
- * Copyright 2023 University of Michigan EECS183
- *
- * Floor.h
- * Project UID 28eb18c2c1ce490aada441e65559efdd
- *
- * Final Project - Elevators
- */
- 
 #ifndef _FLOOR_H_
 #define _FLOOR_H_
 
@@ -14,118 +5,54 @@
 #include "Utility.h"
 #include <iostream>
 
-//////////////////////////////////////////////////
-/////// DO NOT MODIFY ANY CODE IN THIS FILE //////
-/////////// ANY CONSTANTS/ETC SHOULD /////////////
-////////////// BE ADDED IN THE .CPP //////////////
-//////////////////////////////////////////////////
-
 class Floor {
 private:
-    Person people[MAX_PEOPLE_PER_FLOOR];
-    int numPeople;
-    bool hasUpRequest;
-    bool hasDownRequest;
+    Person people[MAX_PEOPLE_PER_FLOOR]; // 存储当前楼层上的人员数组
+    int numPeople; // 当前楼层上的人数
+    bool hasUpRequest; // 是否有上行请求
+    bool hasDownRequest; // 是否有下行请求
 
-    /*
-     * Requires: nothing
-     * Modifies: hasUpRequest, hasDownRequest
-     * Effects: Search through people to find if there are any
-     *          pending up requests or down requests. Set the
-     *          values of hasUpRequest and hasDownRequest appropriately.
-     *          This function is used to recalculate requests whenever
-     *          the people on this floor are added or removed.
-     */
+    // 重置楼层的请求状态
     void resetRequests();
 
 public:
-
-    /*
-     * Requires: request != 0
-     * Modifies: hasUpRequest, hasDownRequest, numPeople, people
-     * Effects:  If there is still room, add newPerson to people.
-     *           Updates hasUpRequest or hasDownRequest based on value of request
-     */
+    // 添加一个人员到当前楼层，同时指定该人员的请求方向
     void addPerson(Person newPerson, int request);
 
-    /*
-     * Requires: numPeopleToRemove >= 0, numPeopleToRemove <= MAX_PEOPLE_PER_FLOOR,
-     *           numPeopleToRemove >= 0, numPeopleToRemove <= numPeople,
-     *           for all values of i such that 0 <= i < numPeopleToRemove, indicesToRemove[i] < numPeople
-     * Modifies: people[], numPeople, hasUpRequest, hasDownRequest
-     * Effects:  Removes objects from people[] at indices specified in indicesToRemove[].
-     *           The size of indicesToRemove[] is given by numPeopleToRemove.
-     *           After removals, calls resetRequests() to update hasUpRequest and hasDownRequest.
-     */
-	void removePeople(const int indicesToRemove[MAX_PEOPLE_PER_FLOOR], const int numPeopleToRemove);
+    // 从当前楼层移除指定索引的人员
+    void removePeople(const int indicesToRemove[MAX_PEOPLE_PER_FLOOR], const int numPeopleToRemove);
 
-    /*
-     * Requires: nothing
-     * Modifies: people
-     * Effects:  Ticks each person on this floor
-     *           Also removes any Person who explodes
-     *           Returns the number of exploded people
-     */
+    // 当前楼层的时钟周期处理函数，返回值表示是否有人进出电梯
     int tick(int currentTime);
 
-    /*
-     * Requires: nothing
-     * Modifies: hasUpRequest, hasDownRequrest, numPeople
-     * Effects:  Initializes all member variables to 0 or false
-     */
+    // 构造函数
     Floor();
 
-    /*
-     * Requires: 0 <= index < numPeople
-     * Modifies: nothing
-     * Effects:  Returns the person at given index of people array
-     */
+    // 根据索引获取当前楼层的人员对象
     Person getPersonByIndex(int index) const;
 
-    /*
-     * Requires: nothing
-     * Modifies: nothing
-     * Effects:  Returns the number of people on this floor
-     */
+    // 获取当前楼层上的人数
     int getNumPeople() const;
 
-    /*
-     * Requires: nothing
-     * Modifies: hasUpRequest
-     * Effects:  Sets hasUpRequest to the given value
-     */
+    // 设置当前楼层是否有上行请求
     void setHasUpRequest(bool hasRequest);
 
-    /*
-     * Requires: nothing
-     * Modifies: nothing
-     * Effects:  Returns whether this floor has an upRequest
-     */
+    // 获取当前楼层是否有上行请求
     bool getHasUpRequest() const;
 
-    /*
-     * Requires: nothing
-     * Modifies: hasDownRequrest
-     * Effects:  Sets hasDownRequest to the given value
-     */
+    // 设置当前楼层是否有下行请求
     void setHasDownRequest(bool hasRequest);
 
-    /*
-     * Requires: nothing
-     * Modifies: nothing
-     * Effects:  Returns whether this floor has an downRequest
-     */
+    // 获取当前楼层是否有下行请求
     bool getHasDownRequest() const;
 
-    /*
-     * Requires: outs is in a good state
-     * Modifies: outs
-     * Effects:  Prints the pickup menu of this floor to outs.
-     */
-	void printFloorPickupMenu(ostream& outs) const;
+    // 打印当前楼层的选人菜单
+    void printFloorPickupMenu(std::ostream& outs) const;
 
-    // Helpers for Building::prettyPrintBuilding
-    void prettyPrintFloorLine1(ostream& outs) const;
-    void prettyPrintFloorLine2(ostream& outs) const;
+    // 打印当前楼层的第一行美观输出信息
+    void prettyPrintFloorLine1(std::ostream& outs) const;
+
+    // 打印当前楼层的第二行美观输出信息
+    void prettyPrintFloorLine2(std::ostream& outs) const;
 };
 #endif

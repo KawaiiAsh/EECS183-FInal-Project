@@ -1,12 +1,3 @@
-/*
- * Copyright 2023 University of Michigan EECS183
- *
- * main.cpp
- * Project UID 28eb18c2c1ce490aada441e65559efdd
- *
- * Final Project - Elevators
- */
-
 #include <iostream>
 #include <fstream>
 #include "Utility.h"
