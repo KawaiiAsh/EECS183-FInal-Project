@@ -1,3 +1,15 @@
+/*
+ * Copyright 2023 University of Michigan EECS183
+ *
+ * Person.cpp
+ * Project UID 28eb18c2c1ce490aada441e65559efdd
+ *
+ * XinLerou Liu, Xinyu Yang, Yushen Dong, Yujie Yang
+ * xinlerou,yxinyu,bildong,jkjkyang
+ *
+ * Final Project - Elevators
+ */
+
 #include "Person.h"
 #include <iostream>
 #include <cmath>
@@ -9,39 +21,43 @@ Person::Person(string inputString) : Person() {
     stringstream ss(inputString);
     char junk;
     ss >> turn;
-    ss >> junk; // 丢弃字符
+    ss >> junk; // Discard character
     ss >> currentFloor;
-    ss >> junk; // 丢弃字符
+    ss >> junk; // Discard character
     ss >> targetFloor;
-    ss >> junk; // 丢弃字符
+    ss >> junk; // Discard character
     ss >> angerLevel;
 }
 
-bool Person::tick(int currentTime) {
 
-    // 每 TICKS_PER_ANGER_INCREASE 个时间单位，此函数将人的愤怒等级增加 1。
+bool Person::tick(int currentTime) {
+    
+    // Every TICKS_PER_ANGER_INCREASE, this function increases the
+    // person's anger level by 1.
     if (currentTime % TICKS_PER_ANGER_INCREASE == 0) {
         angerLevel++;
     }
-
-    // 如果增加后，人的愤怒等级达到了 MAX_ANGER，则函数返回 true。
+    
+    // If, after increasing, the person has an anger level of MAX_ANGER,
+    // the function will return true.
     if (angerLevel >= MAX_ANGER) {
         return true;
     }
-
-        // 如果人的愤怒等级小于 MAX_ANGER，则函数返回 false。
+    
+    // If the person has an anger level less than MAX_ANGER,
+    // the function will return false.
     else {
         return false;
     }
 }
 
-// 打印人的信息字符串，不包括转弯信息
+// Prints the infoString of the person NOT including the turn
 void Person::print(ostream &outs) {
     outs << "f" << currentFloor << "t" << targetFloor << "a" << angerLevel << endl;
 }
 
 //////////////////////////////////////////////////////
-////// 以下代码不得修改 ///////////////////////////////
+////// DO NOT MODIFY ANY CODE BENEATH THIS LINE //////
 //////////////////////////////////////////////////////
 
 Person::Person() {

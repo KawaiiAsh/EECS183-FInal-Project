@@ -7,7 +7,9 @@ using namespace std;
 // 新文件名
 const string NEW_FILENAME = "new.in";
 // 加载文件名
-const string LOAD_FILENAME = "save.in";
+//const string LOAD_FILENAME = "save.in";
+const string LOAD_FILENAME = "morningPeacefulGame.in";
+
 // 游戏输入文件名
 const string GAME_INPUT_FILENAME = "game.in";
 // 结果文件名
